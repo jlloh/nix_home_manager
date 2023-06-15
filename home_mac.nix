@@ -37,6 +37,13 @@
 
     pkgs.fzf
 
+    pkgs.ripgrep
+
+    pkgs.nil
+
+    pkgs.kubectl
+
+    pkgs.nodePackages_latest.vscode-json-languageserver
     # # You can also create simple shell scripts directly inside your
     # # configuration. For example, this adds a command 'my-hello' to your
     # # environment:
@@ -54,10 +61,20 @@
     # ".screenrc".source = dotfiles/screenrc;
 
     # # You can also set the file content immediately.
-    # ".gradle/gradle.properties".text = ''
-    #   org.gradle.console=verbose
-    #   org.gradle.daemon.idletimeout=3600000
-    # '';
+    ".config/zellij/layouts/default.kdl".text = ''
+    layout {
+        pane split_direction="vertical" {
+            pane size="70%"
+            pane size="30%" split_direction="horizontal" {
+                pane
+                pane
+            }
+        }
+        pane size=2 borderless=true {
+            plugin location="zellij:status-bar"
+        }
+    }
+    '';
   };
 
   home.sessionVariables = {
@@ -204,9 +221,45 @@ return {
   color_scheme = "Mariana",
   font = wezterm.font ('Victor Mono', {weight='Bold'}),
   -- font_size = 10.5,
-  initial_cols = 180,
+  initial_cols = 150,
   initial_rows = 50,  
 
   }
   '';
+
+  # Helix
+  programs.helix.enable = true;
+  programs.helix.languages = {
+    language = [
+      {
+        name = "rust";
+        auto-format = true;
+        config = {
+          checkonSave = {
+            command = "clippy";
+          };
+        };
+      }
+      {
+        name = "scala";
+        auto-format = true;
+        config = {
+          checkonSave = {
+            command = "scalafix";
+          };
+        };
+      }
+      # {
+      #   name = "python";
+      #   auto-format = true;
+      #   formatter = {
+      #     command = "black";
+      #     args = ["--quiet", "-"];
+      #   };
+      # }
+    ];
+  };
+  programs.helix.settings = {
+    theme = "nord";
+  };
 }
