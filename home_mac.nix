@@ -42,14 +42,25 @@
     pkgs.nil
 
     pkgs.kubectl
+    pkgs.kubernetes-helm
 
-    pkgs.nodePackages_latest.vscode-json-languageserver
-    # # You can also create simple shell scripts directly inside your
-    # # configuration. For example, this adds a command 'my-hello' to your
-    # # environment:
-    # (pkgs.writeShellScriptBin "my-hello" ''
-    #   echo "Hello, ${config.home.username}!"
-    # '')
+    # pkgs.nodePackages_latest.vscode-json-languageserver
+    #pkgs.nodePackages_latest.vscode-langservers-extracted
+
+    pkgs.terraform-ls
+
+    pkgs.gitui
+
+    pkgs.hurl
+
+    pkgs.podman
+    pkgs.qemu
+
+    pkgs.jq
+
+    pkgs.protols
+
+   # pkgs.nodePackages_latest.vscode-json-languageserver
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -98,6 +109,9 @@
   
   # zellij
   programs.zellij.enable = true;
+  programs.zellij.settings = {
+    theme = "default";
+  };
   # TODO: Layout for zellij?
   
   # zoxide
@@ -120,6 +134,10 @@
     };
     features = "decorations";
     whitespace-error-style = "22 reverse";
+  };
+  programs.git.aliases = {
+    master = "!git checkout master && git pull";
+    co = "checkout";
   };
   programs.git.extraConfig = {
     user = {
@@ -216,6 +234,18 @@ return {
           mods = 'CTRL'
         } 
     },
+    { key = 'b', mods = 'CMD', 
+        action = act.SendKey {
+          key = 'b',
+          mods = 'CTRL'
+        } 
+    },
+    { key = 'f', mods = 'CMD', 
+        action = act.SendKey {
+          key = 'f',
+          mods = 'CTRL'
+        } 
+    },
   },
 
   color_scheme = "Mariana",
@@ -229,32 +259,87 @@ return {
 
   # Helix
   programs.helix.enable = true;
+  # programs.helix.language-server.rust-analyzer.config = {
+  #   check = { command = "clippy"; };
+  # };
   programs.helix.languages = {
+    language-server.rust-analyzer = {
+      config = {
+        check = { command = "clippy"; };
+      };
+    };
+    # language-server.ruff-lsp = {
+    #   command = "ruff-lsp";
+    #   config = {
+    #     documentFormatting = true;
+    #     settings = {
+    #       run = "onSave";
+    #     };
+    #   };
+    # };
+
+    language-server.ruff = {
+      command = "ruff";
+      config = {
+        settings = {
+          # args = ["--ignore" "E501"];
+          args = ["server"];
+        };
+      };
+    };
+
+    # language-server.pyright = {
+    #   command = "pyright-langserver";
+    #   args = ["--stdio"];
+    #   config = {
+    #   };
+    # };
+
+    language-server.pyright = {
+      config = {
+        python = {
+          analysis = {
+            typeCheckingMode = "basic";
+          };
+        };
+      };
+    };
+
     language = [
       {
         name = "rust";
         auto-format = true;
-        config = {
-          checkonSave = {
-            command = "clippy";
-          };
-        };
+      }
+
+      {
+        name = "go";
+        auto-format = true;
+        workspace-lsp-roots = ["ut-platform" "grab-fraud"];
       }
       {
-        name = "scala";
+        name = "python";
         auto-format = true;
-        config = {
-          checkonSave = {
-            command = "scalafix";
-          };
+        language-servers = ["ruff" "pyright"];
+        formatter = {
+          command = "black";
+          args = ["--quiet" "-"];
         };
       }
       # {
-      #   name = "python";
+      #   name = "scala";
       #   auto-format = true;
-      #   formatter = {
-      #     command = "black";
-      #     args = ["--quiet", "-"];
+      #   config = {
+      #     checkonSave = {
+      #       command = "scalafix";
+      #     };
+      #   };
+      # }
+      # {
+      #   name = "json";
+      #   auto-format = true;
+      #   language-server = {
+      #     command = "vscode-json-language-server";
+      #     args = ["--stdio"];
       #   };
       # }
     ];
@@ -262,4 +347,9 @@ return {
   programs.helix.settings = {
     theme = "nord";
   };
+
+  # direnv
+  programs.direnv.enable = true;
+  programs.direnv.enableZshIntegration = true;
+  programs.direnv.nix-direnv.enable = true;
 }
